@@ -16,7 +16,7 @@ uint8_t vl53l5cx_start_check_data_ready_async(VL53L5CX_Configuration *p_dev)
 	return status;
 }
 
-uint8_t vl53l5cx_reading_check_data_ready_async(VL53L5CX_Configuration *p_dev)
+uint8_t vl53l5cx_check_data_ready_async_in_progress(VL53L5CX_Configuration *p_dev)
 {
 	return p_dev->state == VL53L5CX_READING_DATA_AVAILABLE;
 }
@@ -57,7 +57,7 @@ uint8_t vl53l5cx_start_get_ranging_data_async(VL53L5CX_Configuration *p_dev)
 	return status;
 }
 
-uint8_t vl53l5cx_reading_get_ranging_data_async(VL53L5CX_Configuration *p_dev)
+uint8_t vl53l5cx_get_ranging_data_async_in_progress(VL53L5CX_Configuration *p_dev)
 {
 	return VL53L5CX_READING_RANGING_MEASUREMENT == p_dev->state;
 }

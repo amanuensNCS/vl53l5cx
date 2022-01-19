@@ -103,7 +103,7 @@ static void MX_I2C1_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-	if (vl53l5cx_reading_check_data_ready_async(&vl53l5cx))
+	if (vl53l5cx_check_data_ready_async_in_progress(&vl53l5cx))
 	{
 		uint8_t ready = 0;
 		vl53l5cx_finish_check_data_ready_async(&vl53l5cx, &ready);
@@ -117,7 +117,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 		}
 	}
 
-	else if (vl53l5cx_reading_get_ranging_data_async(&vl53l5cx))
+	else if (vl53l5cx_get_ranging_data_async_in_progress(&vl53l5cx))
 	{
 		VL53L5CX_ResultsData data;
 		vl53l5cx_finish_get_ranging_data_async(&vl53l5cx, &data);

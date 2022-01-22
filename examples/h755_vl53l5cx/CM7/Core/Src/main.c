@@ -106,25 +106,25 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 	if (vl53l5cx_check_data_ready_async_in_progress(&vl53l5cx))
 	{
 		uint8_t ready = 0;
-		vl53l5cx_finish_check_data_ready_async(&vl53l5cx, &ready);
+		vl53l5cx_check_data_ready_async_finish(&vl53l5cx, &ready);
 		if (ready)
 		{
-			vl53l5cx_start_get_ranging_data_async(&vl53l5cx);
+			vl53l5cx_get_ranging_data_async_start(&vl53l5cx);
 		}
 		else
 		{
-			vl53l5cx_start_check_data_ready_async(&vl53l5cx);
+			vl53l5cx_check_data_ready_async_start(&vl53l5cx);
 		}
 	}
 
 	else if (vl53l5cx_get_ranging_data_async_in_progress(&vl53l5cx))
 	{
 		VL53L5CX_ResultsData data;
-		vl53l5cx_finish_get_ranging_data_async(&vl53l5cx, &data);
+		vl53l5cx_get_ranging_data_async_finish(&vl53l5cx, &data);
 		static char buf[32];
 		sprintf(buf, "distance: %i\n", data.distance_mm[28]);
 		HAL_UART_Transmit_DMA(&huart3, (uint8_t*) buf, strlen(buf));
-		vl53l5cx_start_check_data_ready_async(&vl53l5cx);
+		vl53l5cx_check_data_ready_async_start(&vl53l5cx);
 	}
 }
 
@@ -211,7 +211,7 @@ int main(void)
 	vl53l5cx_set_ranging_mode(&vl53l5cx, VL53L5CX_RANGING_MODE_CONTINUOUS);
 	vl53l5cx_start_ranging(&vl53l5cx);
 
-	vl53l5cx_start_check_data_ready_async(&vl53l5cx);
+	vl53l5cx_check_data_ready_async_start(&vl53l5cx);
 
 	/* USER CODE END 2 */
 

@@ -1,7 +1,7 @@
 #include "vl53l5cx_api.h"
 #include "vl53l5cx_plugin_async.h"
 
-uint8_t vl53l5cx_start_check_data_ready_async(VL53L5CX_Configuration *p_dev)
+uint8_t vl53l5cx_check_data_ready_async_start(VL53L5CX_Configuration *p_dev)
 {
 	if (p_dev->state != VL53L5CX_IDLE)
 	{
@@ -21,7 +21,7 @@ uint8_t vl53l5cx_check_data_ready_async_in_progress(VL53L5CX_Configuration *p_de
 	return p_dev->state == VL53L5CX_READING_DATA_AVAILABLE;
 }
 
-uint8_t vl53l5cx_finish_check_data_ready_async(VL53L5CX_Configuration *p_dev,
+uint8_t vl53l5cx_check_data_ready_async_finish(VL53L5CX_Configuration *p_dev,
 		uint8_t *p_isReady)
 {
 	if ((p_dev->temp_buffer[0] != p_dev->streamcount)
@@ -41,7 +41,7 @@ uint8_t vl53l5cx_finish_check_data_ready_async(VL53L5CX_Configuration *p_dev,
 	return VL53L5CX_STATUS_OK;
 }
 
-uint8_t vl53l5cx_start_get_ranging_data_async(VL53L5CX_Configuration *p_dev)
+uint8_t vl53l5cx_get_ranging_data_async_start(VL53L5CX_Configuration *p_dev)
 {
 	if (p_dev->state != VL53L5CX_IDLE)
 	{
@@ -62,7 +62,7 @@ uint8_t vl53l5cx_get_ranging_data_async_in_progress(VL53L5CX_Configuration *p_de
 	return VL53L5CX_READING_RANGING_MEASUREMENT == p_dev->state;
 }
 
-uint8_t vl53l5cx_finish_get_ranging_data_async(VL53L5CX_Configuration *p_dev,
+uint8_t vl53l5cx_get_ranging_data_async_finish(VL53L5CX_Configuration *p_dev,
 		VL53L5CX_ResultsData *p_results)
 {
 	union Block_header *bh_ptr;

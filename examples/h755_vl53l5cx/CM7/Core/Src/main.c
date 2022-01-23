@@ -103,28 +103,31 @@ static void MX_I2C1_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+	// First we determine if the i2c interrupt came from a "check_data_ready" or "get_ranging_data" request.
+	// This is done via the *_in_progress calls.
 	if (vl53l5cx_check_data_ready_async_in_progress(&vl53l5cx))
 	{
 		uint8_t ready = 0;
+		// Collect the response. True if the sensor have data ready to be read.
 		vl53l5cx_check_data_ready_async_finish(&vl53l5cx, &ready);
 		if (ready)
 		{
-			vl53l5cx_get_ranging_data_async_start(&vl53l5cx);
+			vl53l5cx_get_ranging_data_async_start(&vl53l5cx); // Send request to read ranging data
 		}
 		else
 		{
-			vl53l5cx_check_data_ready_async_start(&vl53l5cx);
+			vl53l5cx_check_data_ready_async_start(&vl53l5cx); // Try again to ask if data is ready
 		}
 	}
 
-	else if (vl53l5cx_get_ranging_data_async_in_progress(&vl53l5cx))
+	else if (vl53l5cx_get_ranging_data_async_in_progress(&vl53l5cx)) // Check if last request was a "get_ranging_data" request
 	{
 		VL53L5CX_ResultsData data;
-		vl53l5cx_get_ranging_data_async_finish(&vl53l5cx, &data);
+		vl53l5cx_get_ranging_data_async_finish(&vl53l5cx, &data); // Read the ranging data from the buffer where it is stored.
 		static char buf[32];
 		sprintf(buf, "distance: %i\n", data.distance_mm[28]);
-		HAL_UART_Transmit_DMA(&huart3, (uint8_t*) buf, strlen(buf));
-		vl53l5cx_check_data_ready_async_start(&vl53l5cx);
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*) buf, strlen(buf)); // Sends the data over uart for pc to receive
+		vl53l5cx_check_data_ready_async_start(&vl53l5cx); // Check if sensor is ready for a new measurement to be read.
 	}
 }
 
@@ -196,22 +199,30 @@ int main(void)
 	MX_I2C1_Init();
 	/* USER CODE BEGIN 2 */
 
+	// Specify what i2c peripheral to communicate via
 	vl53l5cx.platform.hi2c = &hi2c1;
-	vl53l5cx.platform.address = VL53L5CX_DEFAULT_I2C_ADDRESS;
+	vl53l5cx.platform.address = VL53L5CX_DEFAULT_I2C_ADDRESS; //0x52 is standard i2c address
 
 	uint8_t is_alive = 0;
-	vl53l5cx_is_alive(&vl53l5cx, &is_alive);
+	vl53l5cx_is_alive(&vl53l5cx, &is_alive); // Successful i2c message sent and received
 	if (!is_alive)
 	{
 		return 1;
 	}
-	vl53l5cx_init(&vl53l5cx);
+	vl53l5cx_init(&vl53l5cx); // Mandatory init function, flashes necessary firmware to the sensor.
+	/*
+	 * Configuration of the sensor
+	 */
 	vl53l5cx_set_ranging_frequency_hz(&vl53l5cx, 5);
 	vl53l5cx_set_resolution(&vl53l5cx, VL53L5CX_RESOLUTION_8X8);
 	vl53l5cx_set_ranging_mode(&vl53l5cx, VL53L5CX_RANGING_MODE_CONTINUOUS);
-	vl53l5cx_start_ranging(&vl53l5cx);
 
+	vl53l5cx_start_ranging(&vl53l5cx); // Tell the sensor to start doing measurment
+
+	// Start an async process to determine if the sensor has a measurement ready to be read.
+	// HAL_I2C_MemRxCpltCallback will be the interrupt called when the sensor has answered whether it is ready or not.
 	vl53l5cx_check_data_ready_async_start(&vl53l5cx);
+
 
 	/* USER CODE END 2 */
 

@@ -23,9 +23,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+// NCS BEGIN
 #include <stdio.h>
 #include "vl53l5cx_api.h"
 #include "vl53l5cx_plugin_async.h"
+// NCS END
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,6 +103,7 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// NCS BEGIN
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	// First we determine if the i2c interrupt came from a "check_data_ready" or "get_ranging_data" request.
@@ -130,6 +133,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 		vl53l5cx_check_data_ready_async_start(&vl53l5cx); // Check if sensor is ready for a new measurement to be read.
 	}
 }
+// NCS END
 
 /* USER CODE END 0 */
 
@@ -199,6 +203,8 @@ int main(void)
 	MX_I2C1_Init();
 	/* USER CODE BEGIN 2 */
 
+	// NCS BEGIN
+
 	// Specify what i2c peripheral to communicate via
 	vl53l5cx.platform.hi2c = &hi2c1;
 	vl53l5cx.platform.address = VL53L5CX_DEFAULT_I2C_ADDRESS; //0x52 is standard i2c address
@@ -223,6 +229,7 @@ int main(void)
 	// HAL_I2C_MemRxCpltCallback will be the interrupt called when the sensor has answered whether it is ready or not.
 	vl53l5cx_check_data_ready_async_start(&vl53l5cx);
 
+	// NCS END
 
 	/* USER CODE END 2 */
 
